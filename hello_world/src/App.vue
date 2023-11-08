@@ -66,12 +66,18 @@ export default {
 </script>
 
 <template>
+    <router-view />
 <!--<div>-->
 <!--  <button class="test" @click="handleClick()"></button>-->
 <!--</div>-->
-  <div id="status">Not connected</div>
-  <button @click="handleClick()">Test</button>
+<!--  <div class="reg-buttons">-->
+<!--      <router-link tag="button" to="/signup">No account? Sign up there</router-link>-->
+<!--      <router-link tag="button" to="/reset">Forgot your password?</router-link>-->
+<!--      <router-link tag="button" to="/login">Log in</router-link>-->
+<!--  </div>-->
+<!--  <div id="status">Not connected</div>-->
+<!--  <button @click="handleClick()">Test</button>-->
 </template>
 
-<style scoped>
+<style scoped lang="sass">
 </style>
