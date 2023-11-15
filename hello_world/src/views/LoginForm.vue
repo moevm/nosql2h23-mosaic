@@ -107,21 +107,14 @@ const toggleForm = () => {
                         type="password"
                 />
 
-                <v-card-actions class="d-flex justify-center">
                     <v-btn
-                            class="me-4"
+                            class="log_button"
                             variant="text"
                             @click="userLogIn()"
                     >
-                        <v-icon icon="mdi-login"/>
                         Log in
                     </v-btn>
 
-                    <v-btn @click="handleReset; logInError = false">
-                        <v-icon icon="mdi-close"/>
-                        Очистить
-                    </v-btn>
-                </v-card-actions>
             </div>
             <div
                     v-else
@@ -134,6 +127,7 @@ const toggleForm = () => {
                     <v-card-title>Sign up to start create</v-card-title>
 
                     <v-text-field
+                            class="email_input"
                             v-model="email.value.value"
                             :error-messages="email.errorMessage.value"
                             label="e-mail"
@@ -147,19 +141,13 @@ const toggleForm = () => {
                             variant="plain"
                     />
 
-                    <v-card-actions class="d-flex justify-center">
+                    <v-card-actions class="card-down">
                         <v-btn
-                                class="me-4"
                                 variant="text"
                                 @click="userSignUp()"
                         >
                             <v-icon icon="mdi-check"/>
                             Sign up
-                        </v-btn>
-
-                        <v-btn @click="handleReset; signUpError = false">
-                            <v-icon icon="mdi-close"/>
-                            Очистить
                         </v-btn>
                     </v-card-actions>
                 </form>
@@ -175,6 +163,12 @@ const toggleForm = () => {
                     {{ isLogin ? 'No account? Sign up there' : 'Cancel' }}
                 </button>
             </div>
+
+          <v-card-actions class="card-down2">
+            <v-btn @click="handleReset; signUpError = false">
+              Очистить
+            </v-btn>
+          </v-card-actions>
         </v-card>
     </div>
 </template>
@@ -188,24 +182,28 @@ const toggleForm = () => {
     height: 600px
 
 .authorization-card
-    //background-color: white
+    background-color: rgba(255, 255, 255, 0.93)
     width: 80vw
-    max-width: 600px
-    height: 700px
+    max-width: 520px
+    height: 630px
     padding: 20px
     justify-content: center
     align-items: inherit
     display: flex
     flex-flow: column wrap
-    margin-left: 300px
+    margin-left: 350px
+    border-radius: 20px
+
 
 .v-text-field
+    color: black
     padding: 0
     text-align: center
     width: 300px
+    margin-left: 26px
 
 .change-form-type
-    background-color: white
+    background-color: rgba(255, 255, 255, 0)
     border: none
     color: #000acb
     padding: 15px 32px
@@ -213,5 +211,25 @@ const toggleForm = () => {
     text-decoration: none
     display: inline-block
     font-size: 16px
+
+.v-card-title
+    text-align: center
+    text-decoration: none
+    padding-bottom: 40px
+    font-size: xx-large
+
+.log_button
+    background-color: rgba(39, 47, 92)
+    color: white
+    width: 300px
+    height: 150px
+    max-height: 150px
+    margin-left: 26px
+    flex-flow: column wrap
+
+.reset_button
+    background-color: rgba(255, 255, 255, 0)
+    margin-top: 10px
+    margin-left: 175px
 
 </style>
