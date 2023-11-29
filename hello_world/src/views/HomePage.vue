@@ -1,6 +1,10 @@
 <script>
 import { defineComponent, reactive } from "vue";
 import TableLite from "vue3-table-lite";
+import uploadImage from "../views/ImageUpload.vue";
+import UploadImage from "@/views/ImageUpload.vue";
+import router from "../router/router";
+
 
 // Fake Data for 'asc' sortable
 const sampleData1 = (offst, limit) => {
@@ -29,7 +33,7 @@ const sampleData2 = (offst, limit) => {
 
 export default defineComponent({
   name: "App",
-  components: { TableLite },
+  components: {UploadImage, TableLite },
   setup() {
     // Table config
     const table = reactive({
@@ -121,7 +125,7 @@ export default defineComponent({
 
 <template>
   <div class="left-bar">
-
+  <p><img class="profile-pic" src="../../public/profile.jpg" alt="none">Jolyne Doe</p>
   </div>
   <table-lite
       :is-loading="table.isLoading"
@@ -133,6 +137,7 @@ export default defineComponent({
       @do-search="doSearch"
       @is-finished="table.isLoading = false"
   ></table-lite>
+  <upload-image></upload-image>
 </template>
 
 <style>
@@ -146,6 +151,15 @@ export default defineComponent({
   margin-left: 30px;
   text-align: center;
 }
+p{
+  margin-left: 384px;
+  margin-top: 20px;
+  width: 200px;
+  font-size: large;
+  color: black;
+  border-bottom: solid 2px;
+}
+.vtl-row{ background-color: white; }
 .vtl-thead-th input{ background-color: #fff; }
 .vtl tr { background-color: white; }
 .vtl-tbody-checkbox { color-scheme: auto; }
@@ -159,6 +173,13 @@ export default defineComponent({
   background: rgba(158, 152, 172);
   position: absolute;
   right: 0;
+}
+.profile-pic{
+  width: 50px;
+  height: 50px;
+  border-radius: 100%;
+  border: solid 2px;
+  margin-left: 5px;
 }
 </style>
 
