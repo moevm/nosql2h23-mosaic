@@ -31,6 +31,34 @@ const sampleData2 = (offst, limit) => {
   return data;
 };
 
+function converDatatoTableType(data){
+  let result = [];
+  for (let i = 0; i < data.length; i++){
+    result.push({
+      title: i,
+      preview: data[i]
+    });
+  }
+  return result;
+}
+
+function getNamesFromApi(){
+  let api_addr = "http://127.0.0.1:5000"
+  let api_data = []
+  let xhr = new XMLHttpRequest();
+  xhr.open("GET", api_addr+"/api/get_picks/", false);
+
+  xhr.onload = function () {
+    if (xhr.status === 200) {
+      api_data = JSON.parse(xhr.responseText);
+    }};
+
+  xhr.send();
+
+  return api_data;
+}
+
+
 export default defineComponent({
   name: "App",
   components: {UploadImage, TableLite },
@@ -94,6 +122,10 @@ export default defineComponent({
     /**
      * Search Event
      */
+
+    let api_data = getNamesFromApi();
+    console.log(api_data); //debug
+
     const doSearch = (offset, limit, order, sort) => {
       table.isLoading = true;
       setTimeout(() => {
@@ -102,9 +134,9 @@ export default defineComponent({
           limit = 20;
         }
         if (sort == "asc") {
-          table.rows = sampleData1(offset, limit);
+          table.rows = converDatatoTableType(api_data["names"]);
         } else {
-          table.rows = sampleData2(offset, limit);
+          table.rows = converDatatoTableType((api_data["names"]));
         }
         table.totalRecordCount = 20;
         table.sortable.order = order;
@@ -113,7 +145,7 @@ export default defineComponent({
     };
 
     // First get data
-    doSearch(0, 10, "id", "asc");
+    doSearch(0, api_data["total"], "id", "asc");
 
     return {
       table,
@@ -121,6 +153,14 @@ export default defineComponent({
     };
   },
 });
+
+
+
+
+
+
+
+
 </script>
 
 <template>
