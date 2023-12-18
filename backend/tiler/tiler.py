@@ -7,9 +7,11 @@ from tqdm import tqdm
 from multiprocessing import Pool
 import math
 import pickle
-import conf
+import tiler.conf as conf
 from time import sleep
-
+import base64
+from PIL import Image
+import io
 
 # number of colors per image
 COLOR_DEPTH = conf.COLOR_DEPTH
@@ -81,12 +83,11 @@ def show_image(img, wait=True):
 
 # load and process the tiles
 def load_tiles(paths):
-    print('Loading tiles')
     tiles = defaultdict(list)
 
     for path in paths:
         if os.path.isdir(path):
-            for tile_name in tqdm(os.listdir(path)):
+            for tile_name in os.listdir(path):
                 tile = read_image(os.path.join(path, tile_name))
                 mode, rel_freq = mode_color(tile, ignore_alpha=True)
                 if mode is not None:
@@ -151,9 +152,10 @@ def most_similar_tile(box_mode_freq, tiles):
 
 
 # builds the boxes and finds the best tile for each one
-def get_processed_image_boxes(image_path, tiles):
-    print('Getting and processing boxes')
-    img = read_image(image_path, mainImage=True)
+def get_processed_image_boxes(img_string, tiles):
+    imgdata = base64.b64decode(img_string)
+    pillow_img = Image.open(io.BytesIO(imgdata))
+    img = cv2.cvtColor(np.array(pillow_img), cv2.COLOR_BGR2RGB)
     pool = Pool(POOL_SIZE)
     all_boxes = []
 
@@ -198,31 +200,8 @@ def create_tiled_image(boxes, res, render=False):
     return img
 
 
-# main
-def main():
-    if len(sys.argv) > 1:
-        image_path = sys.argv[1]
-    else:
-        image_path = conf.IMAGE_TO_TILE
-
-    if len(sys.argv) > 2:
-        tiles_paths = sys.argv[2:]
-    else:
-        tiles_paths = conf.TILES_FOLDER.split(' ')
-
-    if not os.path.exists(image_path):
-        print('Image not found')
-        exit(-1)
-    for path in tiles_paths:
-        if not os.path.exists(path):
-            print('Tiles folder not found')
-            exit(-1)
-
-    tiles = load_tiles(tiles_paths)
-    boxes, original_res = get_processed_image_boxes(image_path, tiles)
+def tile_img(img_string):
+    tiles = load_tiles(["tiler/gen_square"])
+    boxes, original_res = get_processed_image_boxes(img_string, tiles)
     img = create_tiled_image(boxes, original_res, render=conf.RENDER)
-    cv2.imwrite(conf.OUT, img)
-
-
-if __name__ == "__main__":
-    main()
+    return img
