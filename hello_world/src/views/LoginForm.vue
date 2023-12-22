@@ -33,19 +33,29 @@ const userLogIn = async () => {
         email: email.value.value,
         password: password.value.value,
     }
+
+    let user_data = new FormData();
+    user_data.append('email', email.value.value);
+    user_data.append('password', password.value.value);
     await axios
-        .post(`http://localhost:5173/login`, user)
+        .post(`http://localhost:5001/api/login`, user_data)
         .catch(() => {
             logInError.value = true
         })
         .then(async (res) => {
-            // localStorage.setItem('token', res.data.token)
+            console.log(res.data.token)
+            localStorage.setItem('token', res.data.token)
             localStorage.setItem('email', res.data.email)
             localStorage.setItem('password', res.data.password)
 
+            if (res.data.token == 0){
+              alert("Incorrect login data")
+              return 0;
+            }
+
             userAuthorized.value = !userAuthorized.value
 
-            await router.push('/')
+            await router.push('/home')
         })
 }
 
