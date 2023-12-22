@@ -2,8 +2,13 @@
   <div class="d-flex flex-row align-items-center" style="height: 100%;">
     <div class="card d-flex" style="width: 100%">
       <div class="card-body">
-        <input type="file" accept="image/jpeg, image/gif, image/png" id="upload-file" @change="onFileChange" />
-        <button @click="upload" class="btn btn-primary btn-block mt-4">Загрузить</button>
+        <button class="btn btn-primary btn-block mt-4" @click="openUploadDialog">
+          Загрузить
+          <input type="file" accept="image/jpeg, image/gif, image/png" ref="fileInput" @change="onFileChange" style="display: none"/>
+        </button>
+        <div v-if="uploading" class="upload-overlay">
+          <span>Загрузка...</span>
+        </div>
       </div>
     </div>
   </div>
@@ -13,27 +18,38 @@
 export default {
   name: "uploadImage",
   props: ["result", "sizes"],
-  data: function () {
+  data() {
     return {
       files: [],
       image: null,
+      uploading: false,
+      fileSelected: false,
     };
   },
   methods: {
-    onFileChange: function (e) {
-      let files = e.target.files || e.dataTransfer.files;
-      if (!files.length) return;
-      this.createImage(files[0]);
+    onFileChange(e) {
+      const files = e.target.files || e.dataTransfer.files;
+      if (files.length) {
+        this.createImage(files[0]);
+        this.fileSelected = true;
+      }
     },
-    createImage: function (file) {
-      let reader = new FileReader();
-      let vm = this;
+    createImage(file) {
+      const reader = new FileReader();
+      const vm = this;
       reader.onload = function (e) {
         vm.image = e.target.result;
       };
       reader.readAsDataURL(file);
     },
-    upload: function () {
+    openUploadDialog() {
+      if (this.fileSelected) {
+        this.upload();
+      } else {
+        this.$refs.fileInput.click();
+      }
+    },
+    upload() {
       let data = new FormData();
       let that = this;
 
@@ -47,8 +63,6 @@ export default {
       //       let result_input = document.querySelector('input[name=' + that.result + ']');
       //       let data = res['data'];
       //       result_input.value = data['path'];
-
-      // Использование маршрутизатора для перехода на новую страницу с параметром image
       that.$router.push({ path: "/edit", query: { image: that.image } });
       //     });
     },
@@ -57,5 +71,22 @@ export default {
 </script>
 
 <style scoped>
-
+.card-body {
+  margin-left: -600px;
+  margin-top: 600px;
+  position: relative;
+  z-index: 1;
+}
+.upload-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(255, 255, 255, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2;
+}
 </style>

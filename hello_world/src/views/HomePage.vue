@@ -177,7 +177,8 @@ export default defineComponent({
       @do-search="doSearch"
       @is-finished="table.isLoading = false"
   ></table-lite>
-  <upload-image></upload-image>
+<!--  <upload-image></upload-image>-->
+  <uploadImage></uploadImage>
 </template>
 
 <style>

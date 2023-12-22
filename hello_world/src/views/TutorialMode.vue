@@ -13,6 +13,13 @@ import image from "@/views/ImageEdit.vue";
     <p class="tutorial-title">Tutorial Mode</p>
     <img class="tutorial-image" :src="image" alt="Uploaded Image">
     <p class="part-title">Part</p>
+    <div class="d-flex justify-space-around">
+      <v-color-picker
+          class="ma"
+          :swatches="swatches"
+          show-swatches
+      ></v-color-picker>
+    </div>
     <router-link tag="button" class="back_button" to="/home">Back</router-link>
   </div>
 </template>
@@ -54,7 +61,7 @@ import image from "@/views/ImageEdit.vue";
 }
 .back_button{
   background-color: rgba(41, 52, 112, 0.93);
-  margin-top: 500px;
+  //margin-top: 500px;
   margin-left: 40px;
   color: white;
   width: 100px;
