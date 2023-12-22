@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import LoginForm from "../views/LoginForm.vue";
 import HomePage from "../views/HomePage.vue";
+import TutorialMode from "../views/TutorialMode.vue";
 import ImageEdit from "@/views/ImageEdit.vue";
 
 const routes = [
@@ -28,6 +29,11 @@ const routes = [
         path: '/edit',
         name: 'edit',
         component: ImageEdit
+    },
+    {
+        path: '/tutorial',
+        name: 'tutorial',
+        component: TutorialMode
     },
 ];
 
