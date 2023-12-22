@@ -41,10 +41,10 @@ class neo4j:
             else:
                 return False
     
-    def addNewPicture(self, email, pic):
+    def addNewMosaic(self, email, pic):
         pass
 
-    def getAllPictures(self, email):
+    def getAllMosaics(self, email):
         pass
 
 
@@ -68,6 +68,21 @@ tokens = []
 
 
 app = Flask(__name__)
+
+@app.route("/api")
+@app.route("/api/get_picks")
+def api_get_picks():
+
+    data = {
+        "total": len(datas),
+        "names": datas
+    }
+
+    response = jsonify(data)
+    response.headers.add('Access-Control-Allow-Origin', '*')
+
+    return response, 200
+
 
 @app.route("/api")
 @app.route("/api/user_profile")
@@ -102,9 +117,10 @@ def api_login():
             response = jsonify(response)
             tokens.append((token, email))
         else:
-            response = "0"
+            response = {"token":"0"}
+            response = jsonify(response)
 
-        #response.headers.add('Access-Control-Allow-Origin', '*')
+        response.headers.add('Access-Control-Allow-Origin', '*')
         return response, 200
 
 

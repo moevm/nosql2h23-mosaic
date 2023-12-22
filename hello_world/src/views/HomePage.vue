@@ -43,10 +43,10 @@ function converDatatoTableType(data){
 }
 
 function getNamesFromApi(){
-  let api_addr = "http://127.0.0.1:5000"
+  let api_addr = "http://127.0.0.1:5001"
   let api_data = []
   let xhr = new XMLHttpRequest();
-  xhr.open("GET", api_addr+"/api/get_picks/", false);
+  xhr.open("GET", api_addr+"/api/get_picks", false);
 
   xhr.onload = function () {
     if (xhr.status === 200) {
