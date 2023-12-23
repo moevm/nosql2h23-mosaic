@@ -7,31 +7,6 @@ import router from "../router/router";
 import axios from "axios";
 
 
-// Fake Data for 'asc' sortable
-const sampleData1 = (offst, limit) => {
-  offst = offst + 1;
-  let data = [];
-  for (let i = offst; i <= limit; i++) {
-    data.push({
-      title: i,
-      preview: "TEST" + i,
-    });
-  }
-  return data;
-};
-
-// Fake Data for 'desc' sortable
-const sampleData2 = (offst, limit) => {
-  let data = [];
-  for (let i = limit; i > offst; i--) {
-    data.push({
-      title: i,
-      preview: "TEST" + i,
-    });
-  }
-  return data;
-};
-
 /*function converDatatoTableType(data){
   let result = [];
   for (let i = 0; i < data.length; i++){
@@ -73,123 +48,124 @@ function getNamesFromApi(){
 }
 
 
-async function getAPIData() {
-  let token = new FormData;
-  token.append('token', localStorage.getItem('token'));
 
-  let api_data = await axios
-      .post(`http://localhost:5001/api/user_profile`, token)
-      .catch(() => {
-      })
-      .then(async (res) => {
-        console.log(res.data);
-        return res.data;
-      })
+  async function getAPIData() {
+    let token = new FormData;
+    token.append('token', localStorage.getItem('token'));
 
-  return api_data;
-}
+    let api_data = await axios
+        .post(`http://localhost:5001/api/user_profile`, token)
+        .catch(() => {
+        })
+        .then(async (res) => {
+          console.log(res.data);
+          return res.data;
+        })
 
-let api_data = await getAPIData();
-console.log(api_data)
+    return api_data;
+  }
+
+  let api_data = await getAPIData();
+  console.log(api_data)
 
 
 
 export default defineComponent({
-  name: "App",
-  components: {UploadImage, TableLite },
-  setup() {
-    // Table config
-    const table = reactive({
-      isLoading: false,
-      columns: [
-        {
-          label: "Title",
-          field: "title",
-          width: "3%",
-          sortable: true,
-          isKey: true,
+    name: "App",
+    components: {UploadImage, TableLite},
+    setup() {
+      // Table config
+      const table = reactive({
+
+        isLoading: false,
+        columns: [
+          {
+            label: "Title",
+            field: "title",
+            width: "3%",
+            sortable: true,
+            isKey: true,
+          },
+          {
+            label: "Preview",
+            field: "preview",
+            width: "10%",
+            sortable: true,
+          },
+          {
+            label: "Colors",
+            field: "colors",
+            width: "15%",
+            sortable: true,
+          },
+          {
+            label: "Shapes",
+            field: "shapes",
+            width: "15%",
+            sortable: true,
+          },
+          {
+            label: "Progress",
+            field: "progress",
+            width: "15%",
+            sortable: true,
+          },
+          {
+            label: "Creation date",
+            field: "creation_date",
+            width: "15%",
+            sortable: true,
+          },
+          {
+            label: "Last change",
+            field: "last_change",
+            width: "15%",
+            sortable: true,
+          },
+        ],
+        rows: [],
+        totalRecordCount: 0,
+        sortable: {
+          order: "id",
+          sort: "asc",
         },
-        {
-          label: "Preview",
-          field: "preview",
-          width: "10%",
-          sortable: true,
-        },
-        {
-          label: "Colors",
-          field: "colors",
-          width: "15%",
-          sortable: true,
-        },
-        {
-          label: "Shapes",
-          field: "shapes",
-          width: "15%",
-          sortable: true,
-        },
-        {
-          label: "Progress",
-          field: "progress",
-          width: "15%",
-          sortable: true,
-        },
-        {
-          label: "Creation date",
-          field: "creation_date",
-          width: "15%",
-          sortable: true,
-        },
-        {
-          label: "Last change",
-          field: "last_change",
-          width: "15%",
-          sortable: true,
-        },
-      ],
-      rows: [],
-      totalRecordCount: 0,
-      sortable: {
-        order: "id",
-        sort: "asc",
-      },
-    });
+      });
 
-    /**
-     * Search Event
-     */
+      /**
+       * Search Event
+       */
 
-    const doSearch = (offset, limit, order, sort) => {
-      table.isLoading = true;
-      setTimeout(() => {
-        table.isReSearch = offset == undefined ? true : false;
-        if (offset >= 10 || limit >= 20) {
-          limit = 20;
-        }
-        if (sort == "asc") {
-          table.rows = converDatatoTableType(api_data);
-        } else {
-          table.rows = converDatatoTableType(api_data);
-        }
-        table.totalRecordCount = 20;
-        table.sortable.order = order;
-        table.sortable.sort = sort;
-      }, 600);
-    };
+      const doSearch = (offset, limit, order, sort) => {
+        table.isLoading = true;
+        setTimeout(() => {
+          table.isReSearch = offset == undefined ? true : false;
+          if (offset >= 10 || limit >= 20) {
+            limit = 20;
+          }
+          if (sort == "asc") {
+            table.rows = converDatatoTableType(api_data);
+          } else {
+            table.rows = converDatatoTableType(api_data);
+          }
+          table.totalRecordCount = 20;
+          table.sortable.order = order;
+          table.sortable.sort = sort;
+        }, 600);
+      };
 
 
+      //let api_data = getAPIData();
+      console.log(api_data); //debug
 
-    //let api_data = getAPIData();
-    console.log(api_data); //debug
-
-
-    doSearch(0, api_data, "id", "asc");
-
-    return {
-      table,
-      doSearch,
-    };
-  },
-});
+      if (localStorage.getItem('auth') === "1") {
+        doSearch(0, api_data, "id", "asc");
+      }
+      return {
+        table,
+        doSearch,
+      };
+    },
+  });
 
 
 

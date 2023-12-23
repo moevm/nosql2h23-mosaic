@@ -46,7 +46,7 @@ class neo4j:
             print(">>>In neo4j::addNewMosaic")
             if len(list(session.run("MATCH (n:User) WHERE n.email = $email MATCH (m:Mosaic)-[:OWNED_BY]->(n) WHERE m.title = $title return m", email=email_str, title=title_str))):
                 return False
-            result = session.run("CREATE (m:Mosaic {picture: $picture, title: $title_str, creation_timestamp: $timest}) MATCH (u:User) WHERE u.email = $email CREATE (m)-[:OWNED_BY]->(u)", picture=pic, title_str=title, timest=time(), email=email_str)
+            result = session.run("CREATE (m:Mosaic {picture: $picture, title: $title, creation_timestamp: $timest}) MATCH (u:User) WHERE u.email = $email CREATE (m)-[:OWNED_BY]->(u)", picture=pic, title=title_str, timest=time(), email=email_str)
             return True
 
 

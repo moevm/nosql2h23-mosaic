@@ -17,6 +17,7 @@
 <script>
 import axios from "axios";
 import router from "@/router/router";
+import {useField} from "vee-validate";
 
 export default {
   name: "uploadImage",
@@ -47,25 +48,37 @@ export default {
     },
     openUploadDialog() {
       if (this.fileSelected) {
-        this.upload();
+
       } else {
+        upload();
         this.$refs.fileInput.click();
       }
     },
   },
 };
+const picture = useField('picture')
+const title = useField('title')
 const upload = async() => {
   let data = new FormData();
   let that = this;
 
-  data.append("picture", this.picture);
-  data.append("title", this.title);
+
+  data.append("picture", picture);
+  data.append("title", title);
   data.append("token", localStorage.getItem('token'));
 
   await axios
       .post(`http://localhost:5001/api/add_picture`, data)
       .then(async (res) => {
-        console.log(res);
+        console.log(res.data.token)
+        localStorage.setItem('token', res.data.token)
+        localStorage.setItem('picture', res.data.picture)
+        localStorage.setItem('title', res.data.title)
+
+        if (res.data.token == 0){
+          alert("Incorrect picture data")
+          return 0;
+        }
         that.$router.push({ path: "/edit", query: { image: that.image } });
       })
 }

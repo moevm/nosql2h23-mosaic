@@ -5,6 +5,7 @@ import axios from "axios";
 import router from "../router/router";
 // import {userAuthorized} from "../utils/utils";
 
+localStorage.setItem('auth', "0");
 const isLogin = ref(true);
 const logInError = ref(false);
 const signUpError = ref(false);
@@ -54,7 +55,7 @@ const userLogIn = async () => {
             }
 
             userAuthorized.value = !userAuthorized.value
-
+            localStorage.setItem('auth', "1");
             await router.push('/home')
         })
 }
