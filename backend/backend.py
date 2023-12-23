@@ -41,10 +41,13 @@ class neo4j:
             else:
                 return False
     
-    def addNewMosaic(self, email_str, pic, title):
+    def addNewMosaic(self, email_str, pic, title_str):
         with self.driver.session() as session:
             print(">>>In neo4j::addNewMosaic")
+            if len(list(session.run("MATCH (n:User) WHERE n.email = $email MATCH (m:Mosaic)-[:OWNED_BY]->(n) WHERE m.title = $title return m", email=email_str, title=title_str))):
+                return False
             result = session.run("CREATE (m:Mosaic {picture: $picture, title: $title_str, creation_timestamp: $timest}) MATCH (u:User) WHERE u.email = $email CREATE (m)-[:OWNED_BY]->(u)", picture=pic, title_str=title, timest=time(), email=email_str)
+            return True
 
 
     def getAllMosaics(self, email_str):
@@ -111,13 +114,55 @@ def api_get_user_profile():
         user = findUserByToken(tokens, request.form["token"])
 
         if user:
-            data = db.getAllMosaics(user)
-            print(data)
+            records = db.getAllMosaics(user)
+
+            #print(records)
+
+            picture_titles = []
+            timestamps = []
+            pictures = []
+            
+            #print(records[0].keys())
+            
+            for record in records: #'m' is a local variable in CYPHER neo4j query
+                picture_titles.append(record["m"].get("title"))
+                timestamps.append(record["m"].get("creation_timestamp"))
+                pictures.append(record["m"].get("picture"))
+            
+            data = {"titles": picture_titles, "timestamps":timestamps, "pictures": pictures}
+            
+            #print(data)
 
             response = jsonify(data)
             response.headers.add('Access-Control-Allow-Origin', '*')
 
             return response, 200
+    
+    response = "FAIL"
+    return response, 500
+        
+
+@app.route("/api")
+@app.route("/api/add_picture", methods=['GET','POST'])
+def api_add_picture():
+    if request.method == "POST":
+        token = request.form["token"]
+        picture = request.form["picture"]
+        title = request.form["title"]
+        
+        user = findUserByToken(tokens, token)
+
+        if user:
+            result = db.addNewMosaic(user, picture, title)
+            
+            if result:
+                response = "OK"
+                return response, 200
+            else:
+                response = "FAIL"
+                return response, 400
+
+
 
 
 @app.route("/api")
