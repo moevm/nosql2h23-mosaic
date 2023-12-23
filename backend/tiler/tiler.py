@@ -7,7 +7,7 @@ from tqdm import tqdm
 from multiprocessing import Pool
 import math
 import pickle
-import tiler.conf as conf
+import conf
 from time import sleep
 import base64
 from PIL import Image
