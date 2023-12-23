@@ -22,7 +22,7 @@ class neo4j:
             if len(result) != 0:
                 return -1
             
-            summary = session.run("CREATE (:User {email: $email, password: $password})",email = email_str, password = password_str)
+            result = session.run("CREATE (:User {email: $email, password: $password})",email = email_str, password = password_str)
             return 0
     
     def checkAccountCredentials(self, email_str, password_str):
@@ -41,11 +41,21 @@ class neo4j:
             else:
                 return False
     
-    def addNewMosaic(self, email, pic):
-        pass
+    def addNewMosaic(self, email_str, pic, title):
+        with self.driver.session() as session:
+            print(">>>In neo4j::addNewMosaic")
+            result = session.run("CREATE (m:Mosaic {picture: $picture, title: $title_str, creation_timestamp: $timest}) MATCH (u:User) WHERE u.email = $email CREATE (m)-[:OWNED_BY]->(u)", picture=pic, title_str=title, timest=time(), email=email_str)
 
-    def getAllMosaics(self, email):
-        pass
+
+    def getAllMosaics(self, email_str):
+        with self.driver.session() as session:
+            result = session.run("MATCH (n:User) WHERE n.email = $email MATCH (m:Mosaic)-[:OWNED_BY]->(n) return m", email=email_str)
+            
+            return list(result)
+    
+    def deleteMosaicByTitle(self, title_str):
+        with self.driver.session() as session:
+            result = session.run("MATCH (m:Mosaic) WHERE m.title = $title DETACH DELETE (m)", title=title_str)
 
 
 db = neo4j("bolt://localhost:7687", "neo4j", "password")
@@ -67,6 +77,16 @@ tokens = []
 
 
 
+def findUserByToken(tokens, token):
+    print(">>> In findUserByToken")
+    print(tokens)
+    for i in tokens:
+        if i[0] == token:
+            return i[1]
+    
+    return False
+
+
 app = Flask(__name__)
 
 @app.route("/api")
@@ -85,18 +105,19 @@ def api_get_picks():
 
 
 @app.route("/api")
-@app.route("/api/user_profile")
+@app.route("/api/user_profile", methods=['GET','POST'])
 def api_get_user_profile():
+    if request.method == "POST":
+        user = findUserByToken(tokens, request.form["token"])
 
-    data = {
-        "total": len(datas),
-        "names": datas
-    }
+        if user:
+            data = db.getAllMosaics(user)
+            print(data)
 
-    response = jsonify(data)
-    response.headers.add('Access-Control-Allow-Origin', '*')
+            response = jsonify(data)
+            response.headers.add('Access-Control-Allow-Origin', '*')
 
-    return response, 200
+            return response, 200
 
 
 @app.route("/api")
