@@ -60,20 +60,12 @@ const upload = async() => {
 
   data.append("picture", this.picture);
   data.append("title", this.title);
-  data.append("root", "uploads/test");
+  data.append("token", localStorage.getItem('token'));
 
   await axios
       .post(`http://localhost:5001/api/add_picture`, data)
       .then(async (res) => {
-        console.log(res.data.token)
-        localStorage.setItem('token', res.data.token)
-        localStorage.setItem('picture', res.data.picture)
-        localStorage.setItem('title', res.data.title)
-
-        if (res.data.token == 0){
-          alert("Incorrect picture data")
-          return 0;
-        }
+        console.log(res);
         that.$router.push({ path: "/edit", query: { image: that.image } });
       })
 }

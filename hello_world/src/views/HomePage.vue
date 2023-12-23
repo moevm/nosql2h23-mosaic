@@ -44,12 +44,13 @@ const sampleData2 = (offst, limit) => {
 }*/
 
 function converDatatoTableType(data){
+  console.log(data);
   let result = [];
   for (let i = 0; i < data["titles"].length; i++){
     result.push({
       title: data["titles"][i],
-      preview: data["picture"][i],
-      creation_date: data["creation_timestamp"][i]
+      preview: data["pictures"][i],
+      creation_date: data["timestamps"][i]
     });
   }
   return result;
@@ -72,23 +73,26 @@ function getNamesFromApi(){
 }
 
 
-const ProfileData = async () => {
-
+async function getAPIData() {
   let token = new FormData;
   token.append('token', localStorage.getItem('token'));
 
-  await axios
+  let api_data = await axios
       .post(`http://localhost:5001/api/user_profile`, token)
       .catch(() => {
-        logInError.value = true
       })
       .then(async (res) => {
         console.log(res.data);
         return res.data;
       })
+
+  return api_data;
 }
 
-let api_data = await ProfileData();
+let api_data = await getAPIData();
+console.log(api_data)
+
+
 
 export default defineComponent({
   name: "App",
@@ -153,9 +157,7 @@ export default defineComponent({
     /**
      * Search Event
      */
-    let api_data = ProfileData();
-    //let api_data = getNamesFromApi();
-    console.log(api_data); //debug
+
     const doSearch = (offset, limit, order, sort) => {
       table.isLoading = true;
       setTimeout(() => {
@@ -174,7 +176,12 @@ export default defineComponent({
       }, 600);
     };
 
-    // First get data
+
+
+    //let api_data = getAPIData();
+    console.log(api_data); //debug
+
+
     doSearch(0, api_data, "id", "asc");
 
     return {
