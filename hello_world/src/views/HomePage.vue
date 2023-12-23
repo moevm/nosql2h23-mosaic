@@ -4,6 +4,7 @@ import TableLite from "vue3-table-lite";
 import uploadImage from "../views/ImageUpload.vue";
 import UploadImage from "@/views/ImageUpload.vue";
 import router from "../router/router";
+import axios from "axios";
 
 
 // Fake Data for 'asc' sortable
@@ -31,12 +32,24 @@ const sampleData2 = (offst, limit) => {
   return data;
 };
 
-function converDatatoTableType(data){
+/*function converDatatoTableType(data){
   let result = [];
   for (let i = 0; i < data.length; i++){
     result.push({
       title: i,
       preview: data[i]
+    });
+  }
+  return result;
+}*/
+
+function converDatatoTableType(data){
+  let result = [];
+  for (let i = 0; i < data["titles"].length; i++){
+    result.push({
+      title: data["titles"][i],
+      preview: data["picture"][i],
+      creation_date: data["creation_timestamp"][i]
     });
   }
   return result;
@@ -58,6 +71,24 @@ function getNamesFromApi(){
   return api_data;
 }
 
+
+const ProfileData = async () => {
+
+  let token = new FormData;
+  token.append('token', localStorage.getItem('token'));
+
+  await axios
+      .post(`http://localhost:5001/api/user_profile`, token)
+      .catch(() => {
+        logInError.value = true
+      })
+      .then(async (res) => {
+        console.log(res.data);
+        return res.data;
+      })
+}
+
+let api_data = await ProfileData();
 
 export default defineComponent({
   name: "App",
@@ -122,10 +153,9 @@ export default defineComponent({
     /**
      * Search Event
      */
-
-    let api_data = getNamesFromApi();
+    let api_data = ProfileData();
+    //let api_data = getNamesFromApi();
     console.log(api_data); //debug
-
     const doSearch = (offset, limit, order, sort) => {
       table.isLoading = true;
       setTimeout(() => {
@@ -134,9 +164,9 @@ export default defineComponent({
           limit = 20;
         }
         if (sort == "asc") {
-          table.rows = converDatatoTableType(api_data["names"]);
+          table.rows = converDatatoTableType(api_data);
         } else {
-          table.rows = converDatatoTableType((api_data["names"]));
+          table.rows = converDatatoTableType(api_data);
         }
         table.totalRecordCount = 20;
         table.sortable.order = order;
@@ -145,7 +175,7 @@ export default defineComponent({
     };
 
     // First get data
-    doSearch(0, api_data["total"], "id", "asc");
+    doSearch(0, api_data, "id", "asc");
 
     return {
       table,
