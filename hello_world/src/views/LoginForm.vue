@@ -6,6 +6,7 @@ import router from "../router/router";
 // import {userAuthorized} from "../utils/utils";
 
 localStorage.setItem('auth', "0");
+console.log("LOGIN FORM CALLED");
 const isLogin = ref(true);
 const logInError = ref(false);
 const signUpError = ref(false);

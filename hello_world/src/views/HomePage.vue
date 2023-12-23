@@ -31,25 +31,8 @@ function converDatatoTableType(data){
   return result;
 }
 
-function getNamesFromApi(){
-  let api_addr = "http://127.0.0.1:5001"
-  let api_data = []
-  let xhr = new XMLHttpRequest();
-  xhr.open("GET", api_addr+"/api/get_picks", false);
 
-  xhr.onload = function () {
-    if (xhr.status === 200) {
-      api_data = JSON.parse(xhr.responseText);
-    }};
-
-  xhr.send();
-
-  return api_data;
-}
-
-
-
-  async function getAPIData() {
+const getAPIData = async () => {
     let token = new FormData;
     token.append('token', localStorage.getItem('token'));
 
@@ -74,100 +57,91 @@ export default defineComponent({
     name: "App",
     components: {UploadImage, TableLite},
     setup() {
-      // Table config
-      const table = reactive({
-
-        isLoading: false,
-        columns: [
-          {
-            label: "Title",
-            field: "title",
-            width: "3%",
-            sortable: true,
-            isKey: true,
-          },
-          {
-            label: "Preview",
-            field: "preview",
-            width: "10%",
-            sortable: true,
-          },
-          {
-            label: "Colors",
-            field: "colors",
-            width: "15%",
-            sortable: true,
-          },
-          {
-            label: "Shapes",
-            field: "shapes",
-            width: "15%",
-            sortable: true,
-          },
-          {
-            label: "Progress",
-            field: "progress",
-            width: "15%",
-            sortable: true,
-          },
-          {
-            label: "Creation date",
-            field: "creation_date",
-            width: "15%",
-            sortable: true,
-          },
-          {
-            label: "Last change",
-            field: "last_change",
-            width: "15%",
-            sortable: true,
-          },
-        ],
-        rows: [],
-        totalRecordCount: 0,
-        sortable: {
-          order: "id",
-          sort: "asc",
-        },
-      });
-
-      /**
-       * Search Event
-       */
-
-      const doSearch = (offset, limit, order, sort) => {
-        table.isLoading = true;
-        setTimeout(() => {
-          table.isReSearch = offset == undefined ? true : false;
-          if (offset >= 10 || limit >= 20) {
-            limit = 20;
-          }
-          if (sort == "asc") {
-            table.rows = converDatatoTableType(api_data);
-          } else {
-            table.rows = converDatatoTableType(api_data);
-          }
-          table.totalRecordCount = 20;
-          table.sortable.order = order;
-          table.sortable.sort = sort;
-        }, 600);
-      };
 
 
-      //let api_data = getAPIData();
-      console.log(api_data); //debug
+        // Table config
+        const table = reactive({
 
-      if (localStorage.getItem('auth') === "1") {
+          isLoading: false,
+          columns: [
+            {
+              label: "Title",
+              field: "title",
+              width: "3%",
+              sortable: true,
+              isKey: true,
+            },
+            {
+              label: "Preview",
+              field: "preview",
+              width: "10%",
+              sortable: true,
+            },
+            {
+              label: "Colors",
+              field: "colors",
+              width: "15%",
+              sortable: true,
+            },
+            {
+              label: "Shapes",
+              field: "shapes",
+              width: "15%",
+              sortable: true,
+            },
+            {
+              label: "Progress",
+              field: "progress",
+              width: "15%",
+              sortable: true,
+            },
+            {
+              label: "Creation date",
+              field: "creation_date",
+              width: "15%",
+              sortable: true,
+            },
+            {
+              label: "Last change",
+              field: "last_change",
+              width: "15%",
+              sortable: true,
+            },
+          ],
+          rows: [],
+          totalRecordCount: 0,
+          sortable: {
+            order: "id",
+            sort: "asc",
+          },
+        });
+
+        /**
+         * Search Event
+         */
+
+        const doSearch = (offset, limit, order, sort) => {
+          table.isLoading = true;
+          setTimeout(() => {
+            table.isReSearch = offset == undefined ? true : false;
+            if (offset >= 10 || limit >= 20) {
+              limit = 20;
+            }
+            if (sort == "asc") {
+              table.rows = converDatatoTableType(api_data);
+            } else {
+              table.rows = converDatatoTableType(api_data);
+            }
+            table.totalRecordCount = 20;
+            table.sortable.order = order;
+            table.sortable.sort = sort;
+          }, 600);
+        };
+
         doSearch(0, api_data, "id", "asc");
-      }
-      return {
-        table,
-        doSearch,
-      };
+        return {table, doSearch};
     },
   });
-
-
 
 
 

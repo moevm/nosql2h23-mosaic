@@ -34,8 +34,9 @@ export default {
     onFileChange(e) {
       const files = e.target.files || e.dataTransfer.files;
       if (files.length) {
-        this.createImage(files[0]);
         this.fileSelected = true;
+        this.createImage(files[0]);
+        upload(files[0].name, this.image);
       }
     },
     createImage(file) {
@@ -48,9 +49,8 @@ export default {
     },
     openUploadDialog() {
       if (this.fileSelected) {
-
       } else {
-        upload();
+
         this.$refs.fileInput.click();
       }
     },
@@ -58,29 +58,26 @@ export default {
 };
 const picture = useField('picture')
 const title = useField('title')
-const upload = async() => {
+const upload = async(title, picture) => {
   let data = new FormData();
   let that = this;
 
+  console.log(picture);
+  console.log(title);
 
-  data.append("picture", picture);
+  data.append("picture", "picture");
   data.append("title", title);
   data.append("token", localStorage.getItem('token'));
+
+  console.log(data);
 
   await axios
       .post(`http://localhost:5001/api/add_picture`, data)
       .then(async (res) => {
-        console.log(res.data.token)
-        localStorage.setItem('token', res.data.token)
-        localStorage.setItem('picture', res.data.picture)
-        localStorage.setItem('title', res.data.title)
-
-        if (res.data.token == 0){
-          alert("Incorrect picture data")
-          return 0;
-        }
-        that.$router.push({ path: "/edit", query: { image: that.image } });
+        await router.push({ path: "/home"});
       })
+
+
 }
 </script>
 
