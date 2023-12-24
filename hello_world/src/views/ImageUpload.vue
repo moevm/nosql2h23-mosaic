@@ -15,6 +15,10 @@
 </template>
 
 <script>
+import axios from "axios";
+import router from "@/router/router";
+import {useField} from "vee-validate";
+
 export default {
   name: "uploadImage",
   props: ["result", "sizes"],
@@ -30,8 +34,9 @@ export default {
     onFileChange(e) {
       const files = e.target.files || e.dataTransfer.files;
       if (files.length) {
-        this.createImage(files[0]);
         this.fileSelected = true;
+        this.createImage(files[0]);
+        upload(files[0].name, this.image);
       }
     },
     createImage(file) {
@@ -44,30 +49,36 @@ export default {
     },
     openUploadDialog() {
       if (this.fileSelected) {
-        this.upload();
       } else {
+
         this.$refs.fileInput.click();
       }
     },
-    upload() {
-      let data = new FormData();
-      let that = this;
-
-      data.append("file", this.image);
-      data.append("sizes", this.sizes);
-      data.append("root", "uploads/test");
-
-      // Здесь вы можете использовать axios для отправки данных на сервер и получения ответа
-      // axios.post('/api/photo/upload-base64', data)
-      //     .then(function(res) {
-      //       let result_input = document.querySelector('input[name=' + that.result + ']');
-      //       let data = res['data'];
-      //       result_input.value = data['path'];
-      that.$router.push({ path: "/edit", query: { image: that.image } });
-      //     });
-    },
   },
 };
+const picture = useField('picture')
+const title = useField('title')
+const upload = async(title, picture) => {
+  let data = new FormData();
+  let that = this;
+
+  console.log(picture);
+  console.log(title);
+
+  data.append("picture", "picture");
+  data.append("title", title);
+  data.append("token", localStorage.getItem('token'));
+
+  console.log(data);
+
+  await axios
+      .post(`http://localhost:5001/api/add_picture`, data)
+      .then(async (res) => {
+        await router.push({ path: "/home"});
+      })
+
+
+}
 </script>
 
 <style scoped>
