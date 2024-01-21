@@ -5,7 +5,7 @@ import axios from "axios";
 import router from "../router/router";
 // import {userAuthorized} from "../utils/utils";
 
-localStorage.setItem('auth', "0");
+
 console.log("LOGIN FORM CALLED");
 const isLogin = ref(true);
 const logInError = ref(false);
@@ -47,8 +47,6 @@ const userLogIn = async () => {
         .then(async (res) => {
             console.log(res.data.token)
             localStorage.setItem('token', res.data.token)
-            localStorage.setItem('email', res.data.email)
-            localStorage.setItem('password', res.data.password)
 
             if (res.data.token == 0){
               alert("Incorrect login data")

@@ -36,14 +36,13 @@ export default {
       if (files.length) {
         this.fileSelected = true;
         this.createImage(files[0]);
-        upload(files[0].name, this.image);
+        // upload(files[0].name, this.image);
       }
     },
     createImage(file) {
       const reader = new FileReader();
-      const vm = this;
-      reader.onload = function (e) {
-        vm.image = e.target.result;
+      reader.onload = (e) => {
+        upload(file.name, e.target.result)
       };
       reader.readAsDataURL(file);
     },
@@ -65,7 +64,7 @@ const upload = async(title, picture) => {
   console.log(picture);
   console.log(title);
 
-  data.append("picture", "picture");
+  data.append("picture", picture);
   data.append("title", title);
   data.append("token", localStorage.getItem('token'));
 

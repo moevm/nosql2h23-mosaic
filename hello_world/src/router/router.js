@@ -3,6 +3,7 @@ import LoginForm from "../views/LoginForm.vue";
 import HomePage from "../views/HomePage.vue";
 import TutorialMode from "../views/TutorialMode.vue";
 import ImageEdit from "@/views/ImageEdit.vue";
+import Viewer from "@/views/Viewer.vue";
 
 const routes = [
     {
@@ -34,6 +35,11 @@ const routes = [
         path: '/tutorial',
         name: 'tutorial',
         component: TutorialMode
+    },
+    {
+        path: '/view',
+        name: 'view',
+        component: Viewer
     },
 ];
 

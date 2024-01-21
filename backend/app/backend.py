@@ -3,6 +3,7 @@ from neo4j import GraphDatabase
 import json
 from time import time
 from random import randint as rnd
+import img2mosaic
 
 
 class neo4j:
@@ -41,15 +42,29 @@ class neo4j:
             else:
                 return False
     
-    def addNewMosaic(self, email_str, pic, title_str):
+    def addNewMosaic(self, email_str, pic, title_str, blockSize, colors):
         with self.driver.session() as session:
             print(">>>In neo4j::addNewMosaic")
             if len(list(session.run("MATCH (n:User) WHERE n.email = $email MATCH (m:Mosaic)-[:OWNED_BY]->(n) WHERE m.title = $title return m", email=email_str, title=title_str))):
                 return False
-            result = session.run("MATCH (u:User) WHERE u.email = $email CREATE (m:Mosaic {picture: $picture, title: $title, creation_timestamp: $timest}) CREATE (m)-[:OWNED_BY]->(u)", picture=pic, title=title_str, timest=time(), email=email_str)
+            result = session.run("MATCH (u:User) WHERE u.email = $email CREATE (m:Mosaic {picture: $picture, title: $title, blockSize:$blockSize, colors:$colors, creation_timestamp: $timest}) CREATE (m)-[:OWNED_BY]->(u)", picture=pic, title=title_str, blockSize=blockSize, colors=colors, timest=time(), email=email_str)
             return True
-
-
+    
+    def constructMosaic(self, title, pixelSize, colors):
+        with self.driver.session() as session:
+            result = list(session.run("MATCH (m:Mosaic) WHERE m.title = $title return m.picture", title=title))
+            imgBase64 = result[0].get("m.picture")
+            index = imgBase64.find('base64,')
+            imgBase64 = imgBase64[index+7:]
+            pixels = img2mosaic.convert(imgBase64, pixelSize, colors)
+            
+            for y, row in enumerate(pixels):
+                for x, rgb in enumerate(row):
+                    session.run("MATCH (m:Mosaic) WHERE m.title = $title CREATE (t:Tile {x: $x, y: $y, r: $r, g: $g, b: $b}) CREATE (t)-[:INCLUDED_BY]->(m)", title=title, x=x, y=y, r=rgb[0], g=rgb[1], b=rgb[2])
+    def getMosaic(self, title):
+        with self.driver.session() as session:
+            result = list(session.run("MATCH (m:Mosaic) WHERE m.title = $title MATCH (t:Tile)-[:INCLUDED_BY]->(m) return t", title=title))
+            return result
     def getAllMosaics(self, email_str):
         with self.driver.session() as session:
             result = session.run("MATCH (n:User) WHERE n.email = $email MATCH (m:Mosaic)-[:OWNED_BY]->(n) return m", email=email_str)
@@ -105,7 +120,35 @@ def api_get_picks():
     response.headers.add('Access-Control-Allow-Origin', '*')
 
     return response, 200
+    
+@app.route("/api")
+@app.route("/api/get_mosaic", methods=['GET','POST'])
+def api_get_mosaic():
+    if request.method == "POST":
 
+        records = db.getMosaic(request.form["title"])
+
+
+        tiles = []
+        
+        
+        for record in records:
+            tiles.append({
+                "x": record["t"].get("x"),
+                "y": record["t"].get("y"),
+                "r": record["t"].get("r"),
+                "g": record["t"].get("g"),
+                "b": record["t"].get("b"),
+            })
+        
+        data = {"tiles": tiles}
+        
+        print(data)
+
+        response = jsonify(data)
+        response.headers.add('Access-Control-Allow-Origin', '*')
+
+        return response, 200
 
 @app.route("/api")
 @app.route("/api/user_profile", methods=['GET','POST'])
@@ -121,6 +164,9 @@ def api_get_user_profile():
             picture_titles = []
             timestamps = []
             pictures = []
+            colors = []
+            blockSizes = []
+            progresses = []
             
             #print(records[0].keys())
             
@@ -128,8 +174,11 @@ def api_get_user_profile():
                 picture_titles.append(record["m"].get("title"))
                 timestamps.append(record["m"].get("creation_timestamp"))
                 pictures.append(record["m"].get("picture"))
+                colors.append(record["m"].get("colors"))
+                blockSizes.append(record["m"].get("blockSize"))
+                progresses.append("100%")
             
-            data = {"titles": picture_titles, "timestamps":timestamps, "pictures": pictures}
+            data = {"titles": picture_titles, "timestamps":timestamps, "pictures": pictures, "colors": colors, "blockSizes": blockSizes, "progresses":progresses}
             
             #print(data)
 
@@ -151,9 +200,13 @@ def api_add_picture():
         title = request.form["title"]
         
         user = findUserByToken(tokens, token)
+       
 
         if user:
-            result = db.addNewMosaic(user, picture, title)
+            colors = 256
+            blockSize = 10
+            result = db.addNewMosaic(user, picture, title, blockSize, colors)
+            db.constructMosaic(title, blockSize, colors)
             
             if result:
                 response = jsonify("OK")

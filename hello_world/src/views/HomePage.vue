@@ -21,10 +21,19 @@ import axios from "axios";
 function converDatatoTableType(data){
   console.log(data);
   let result = [];
+
   for (let i = 0; i < data["titles"].length; i++){
+    var image = new Image();
+    image.src = data["pictures"][i];
+    image.width = 200
+    image.height = 100
+
     result.push({
       title: data["titles"][i],
-      preview: data["pictures"][i],
+      preview: image.outerHTML,
+      colors: data["colors"][i],
+      block_size: data["blockSizes"][i],
+      progress: data["progresses"][i],
       creation_date: data["timestamps"][i]
     });
   }
@@ -33,8 +42,11 @@ function converDatatoTableType(data){
 
 
 const getAPIData = async () => {
+    const tokenLS = localStorage.getItem('token')
+    if(!tokenLS) return
+
     let token = new FormData;
-    token.append('token', localStorage.getItem('token'));
+    token.append('token', tokenLS);
 
     let api_data = await axios
         .post(`http://localhost:5001/api/user_profile`, token)
@@ -76,6 +88,11 @@ export default defineComponent({
               field: "preview",
               width: "10%",
               sortable: true,
+              display: (row) => {
+                return (
+                    row.preview
+                )
+              }
             },
             {
               label: "Colors",
@@ -84,8 +101,8 @@ export default defineComponent({
               sortable: true,
             },
             {
-              label: "Shapes",
-              field: "shapes",
+              label: "Block size",
+              field: "block_size",
               width: "15%",
               sortable: true,
             },
