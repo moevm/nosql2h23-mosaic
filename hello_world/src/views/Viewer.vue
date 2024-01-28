@@ -41,7 +41,7 @@
 
 <template>
   <div class="container">
-    <input id="title">
+    <input id="title" placeholder="Введите название файла">
     <button @click="open()">Open</button>
     <div class="canvas-container"><canvas id="canvas"></canvas></div>
   </div>

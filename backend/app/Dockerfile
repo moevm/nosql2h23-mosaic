@@ -1,8 +1,10 @@
-FROM ubuntu:latest
-RUN apt-get update -y
-RUN apt-get install -y python-pip python-dev build-essential
+FROM ubuntu:22.04
+RUN apt-get -y update
+RUN apt-get -y upgrade 
+RUN apt-get install -y pip
+RUN apt-get install -y python3 
 COPY . /backend
 WORKDIR /backend
 RUN pip install -r requirements.txt
-ENTRYPOINT ['python']
-CMD ['backend.py']
+EXPOSE 5001
+CMD python3 ./backend.py

@@ -1,7 +1,6 @@
 <template>
   <div>
     <input v-model="filterName" placeholder="Enter Name for Filter" />
-
     <button @click="applyFilter">Apply Filter</button>
   </div>
 </template>
@@ -11,12 +10,13 @@ import {ref} from "vue";
 
 export default {
   props: ["modelValue"],
-  emits: ["update:modelValue"],
+  emits: ["update:modelValue", "applyFilter"],
   setup(props, {emit}) {
     const filterName = ref(props.modelValue);
 
     const applyFilter = () => {
       emit("update:modelValue", filterName.value);
+      emit("applyFilter", {name: filterName.value});
     };
 
     return {

@@ -1,7 +1,7 @@
 from flask import Flask, request, jsonify
 from neo4j import GraphDatabase
 import json
-from time import time
+from time import time, sleep
 from datetime import datetime
 from random import randint as rnd
 import img2mosaic
@@ -147,7 +147,18 @@ class neo4j:
             result = session.run("MATCH (m:Mosaic) WHERE m.title = $title DETACH DELETE (m)", title=title_str)
 
 
-db = neo4j("bolt://localhost:7687", "neo4j", "password")
+db_started = False
+st = time()
+
+while not db_started:
+    try:
+        db = neo4j("bolt://db:7687", "neo4j", "password")
+        db_started = True
+    except:
+        db_started = False
+        print(f"Waiting for db to start: {round(time()-st, 2)} sec")
+    
+    sleep(0.2)
 
 def generate_token():
     symset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ01234567890_="
@@ -361,6 +372,6 @@ def api_jsontestall():
 
 
 if __name__ == "__main__":
-    app.run(debug=True, port = 5001)
+    app.run(debug=True, port = 5001, host='0.0.0.0')
     db.close()
     
