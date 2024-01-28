@@ -6,6 +6,7 @@
 
     let data = new FormData();
     data.append('title', inp);
+	data.append('token', localStorage['token']);
 
     await axios
         .post(`http://localhost:5001/api/get_mosaic`, data)

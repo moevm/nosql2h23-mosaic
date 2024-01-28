@@ -54,17 +54,19 @@ class neo4j:
     def constructMosaic(self, title, pixelSize, colors, email):
         with self.driver.session() as session:
             result = list(session.run("MATCH (u:User) WHERE u.email = $email MATCH (m:Mosaic)-[:OWNED_BY]->(u) WHERE m.title = $title return m", email=email, title=title))
-            imgBase64 = result[0].get("m.picture")
+            print(result)
+            imgBase64 = result[0][0].get("picture")
             index = imgBase64.find('base64,')
             imgBase64 = imgBase64[index+7:]
             pixels = img2mosaic.convert(imgBase64, pixelSize, colors)
             
             for y, row in enumerate(pixels):
                 for x, rgb in enumerate(row):
-                    session.run("MATCH (m:Mosaic) WHERE m.title = $title CREATE (t:Tile {x: $x, y: $y, r: $r, g: $g, b: $b}) CREATE (t)-[:INCLUDED_BY]->(m)", title=title, x=x, y=y, r=rgb[0], g=rgb[1], b=rgb[2])
-    def getMosaicTiles(self, title):
+                    session.run("MATCH (n:User) WHERE n.email = $email MATCH (m:Mosaic)-[:OWNED_BY]->(n) WHERE m.title = $title CREATE (t:Tile {x: $x, y: $y, r: $r, g: $g, b: $b}) CREATE (t)-[:INCLUDED_BY]->(m)", email=email, title=title, x=x, y=y, r=rgb[0], g=rgb[1], b=rgb[2])
+    
+    def getMosaicTiles(self, title, email):
         with self.driver.session() as session:
-            result = list(session.run("MATCH (m:Mosaic) WHERE m.title = $title MATCH (t:Tile)-[:INCLUDED_BY]->(m) return t", title=title))
+            result = list(session.run("MATCH (n:User) WHERE n.email = $email MATCH (m:Mosaic)-[:OWNED_BY]->(n) WHERE m.title = $title MATCH (t:Tile)-[:INCLUDED_BY]->(m) return t", title=title, email=email))
             return result
     def getAllMosaics(self, email_str):
         with self.driver.session() as session:
@@ -72,10 +74,10 @@ class neo4j:
             
             return list(result)
     
-    def getJSONForMosaic(self, title):
+    def getJSONForMosaic(self, title, email):
         with self.driver.session() as session:
             data = {}
-            result = list(session.run("MATCH (m:Mosaic) WHERE m.title = $title return m", title = title))
+            result = list(session.run("MATCH (n:User) WHERE n.email = $email MATCH (m:Mosaic)-[:OWNED_BY]->(n) WHERE m.title = $title return m", email=email, title = title))
             
             print(type(result[0]))
             #print(result[0].get('m.blockSize'))
@@ -85,7 +87,7 @@ class neo4j:
             data['picture'] = result[0][0].get('picture')
             data['title'] = result[0][0].get('title')
             
-            records = self.getMosaicTiles(title)
+            records = self.getMosaicTiles(title, email)
             
             tiles = []
 
@@ -136,11 +138,6 @@ class neo4j:
             
             for tile in tiles:
                 session.run("MATCH (u:User) WHERE u.email=$email MATCH (m:Mosaic)-[:OWNED_BY]->(u) WHERE m.title = $title CREATE (t:Tile {x: $x, y: $y, r: $r, g: $g, b: $b}) CREATE (t)-[:INCLUDED_BY]->(m)", email=email, title=title, x=tile['x'], y=tile['y'], r=tile['r'], g=tile['g'], b=tile['b'])
-
-
-            
-
-
     
     def deleteMosaicByTitle(self, title_str):
         with self.driver.session() as session:
@@ -208,7 +205,10 @@ def api_get_picks():
 def api_get_mosaic():
     if request.method == "POST":
 
-        records = db.getMosaicTiles(request.form["title"])
+        
+        user = findUserByToken(tokens, request.form["token"])
+
+        records = db.getMosaicTiles(request.form["title"], user)
 
 
         tiles = []
