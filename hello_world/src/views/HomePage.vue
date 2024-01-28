@@ -6,6 +6,10 @@ import UploadImage from "@/views/ImageUpload.vue";
 import router from "../router/router";
 import axios from "axios";
 import Filter from "@/views/Filter.vue";
+import openUploadDialog from "@/views/ImageUpload.vue";
+import onFileChange from "@/views/ImageUpload.vue";
+import UploadJson from "@/views/JsonUpload.vue";
+
 
 localStorage.setItem('token', '0');
 function converDatatoTableType(data){
@@ -55,7 +59,7 @@ const getAPIData = async () => {
 
 export default defineComponent({
     name: "App",
-    components: {UploadImage, TableLite, Filter},
+    components: {UploadJson, UploadImage, TableLite, Filter},
     setup() {
 
 
@@ -152,9 +156,7 @@ export default defineComponent({
       <button class="btn" @click="">
         Скачать данные профиля
       </button>
-      <button class="btn" @click="">
-        Загрузить данные профиля
-      </button>
+      <UploadJson></UploadJson>
       <router-link tag="button" class="view-button" to="/view">Посмотреть готовую мозаику</router-link>
       <router-link tag="button" class="view-button" to="/filter">Использовать фильтр</router-link>
       <uploadImage></uploadImage>
