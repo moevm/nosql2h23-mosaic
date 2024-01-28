@@ -139,8 +139,6 @@ export default defineComponent({
           }, 600);
         };
 
-
-
         doSearch(0, api_data, "id", "asc");
         return {table, doSearch};
     },
@@ -158,6 +156,8 @@ export default defineComponent({
         Загрузить данные профиля
       </button>
       <router-link tag="button" class="view-button" to="/view">Посмотреть готовую мозаику</router-link>
+      <router-link tag="button" class="view-button" to="/filter">Использовать фильтр</router-link>
+      <uploadImage></uploadImage>
     </div>
   </div>
   <Filter @applyFilter="handleFilter"></Filter>
@@ -171,8 +171,6 @@ export default defineComponent({
       @do-search="doSearch"
       @is-finished="table.isLoading = false"
   ></table-lite>
-<!--  <upload-image></upload-image>-->
-  <uploadImage></uploadImage>
 </template>
 
 <style>
@@ -230,6 +228,8 @@ p{
   float: left;
 }
 .view-button{
+  margin-bottom: 10px;
+  border-radius: 3px;
   background-color: white;
   text-decoration-color: black;
   text-align: center;

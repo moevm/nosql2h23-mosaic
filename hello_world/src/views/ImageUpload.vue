@@ -3,7 +3,7 @@
     <div class="card d-flex" style="width: 100%">
       <div class="card-body">
         <button class="btn btn-primary btn-block mt-4" @click="openUploadDialog">
-          Загрузить
+          Загрузить изображение
           <input type="file" accept="image/jpeg, image/gif, image/png" ref="fileInput" @change="onFileChange" style="display: none"/>
         </button>
         <div v-if="uploading" class="upload-overlay">
@@ -81,22 +81,7 @@ const upload = async(title, picture) => {
 </script>
 
 <style scoped>
-.card-body {
-  margin-left: -600px;
-  margin-top: 600px;
-  position: relative;
-  z-index: 1;
-}
-.upload-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(255, 255, 255, 0.7);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 2;
+.btn{
+  width: 300px;
 }
 </style>
