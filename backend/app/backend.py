@@ -62,7 +62,7 @@ class neo4j:
             for y, row in enumerate(pixels):
                 for x, rgb in enumerate(row):
                     session.run("MATCH (m:Mosaic) WHERE m.title = $title CREATE (t:Tile {x: $x, y: $y, r: $r, g: $g, b: $b}) CREATE (t)-[:INCLUDED_BY]->(m)", title=title, x=x, y=y, r=rgb[0], g=rgb[1], b=rgb[2])
-    def getMosaic(self, title):
+    def getMosaicTiles(self, title):
         with self.driver.session() as session:
             result = list(session.run("MATCH (m:Mosaic) WHERE m.title = $title MATCH (t:Tile)-[:INCLUDED_BY]->(m) return t", title=title))
             return result
@@ -71,6 +71,56 @@ class neo4j:
             result = session.run("MATCH (n:User) WHERE n.email = $email MATCH (m:Mosaic)-[:OWNED_BY]->(n) return m", email=email_str)
             
             return list(result)
+    
+    def getJSONForMosaic(self, title):
+        with self.driver.session() as session:
+            data = {}
+            result = list(session.run("MATCH (m:Mosaic) WHERE m.title = $title return m", title = title))
+            
+            print(type(result[0]))
+            #print(result[0].get('m.blockSize'))
+            data['blockSize'] = result[0][0].get('blockSize')
+            data['colors'] = result[0][0].get('colors')
+            data['creation_timestamp'] = result[0][0].get('creation_timestamp')
+            data['picture'] = result[0][0].get('picture')
+            data['title'] = result[0][0].get('title')
+            
+            records = self.getMosaicTiles(title)
+            
+            tiles = []
+
+            for record in records:
+                tiles.append({
+                    "x": record["t"].get("x"),
+                    "y": record["t"].get("y"),
+                    "r": record["t"].get("r"),
+                    "g": record["t"].get("g"),
+                    "b": record["t"].get("b"),
+                })
+
+            data['tiles'] = tiles
+
+            return data
+    
+    def getAllMosaicsJSON(self, email):
+        with self.driver.session() as session:
+
+            all_data = {}
+            titles = []
+
+            results = list(session.run('MATCH (u:User) WHERE u.email=$email MATCH (m:Mosaic)-[:OWNED_BY]->(u) return m', email=email))
+            for result in results:
+                titles.append(result[0].get('title'))
+            
+            print(len(titles))
+
+            for i in range(len(titles)):
+                all_data[f'Mosaic{i}'] = self.getJSONForMosaic(titles[i])
+            
+            return all_data
+            
+
+
     
     def deleteMosaicByTitle(self, title_str):
         with self.driver.session() as session:
@@ -127,7 +177,7 @@ def api_get_picks():
 def api_get_mosaic():
     if request.method == "POST":
 
-        records = db.getMosaic(request.form["title"])
+        records = db.getMosaicTiles(request.form["title"])
 
 
         tiles = []
@@ -262,6 +312,31 @@ def api_signup():
             response = "0"
 
         #response.headers.add('Access-Control-Allow-Origin', '*')
+        return response, 200
+
+
+@app.route("/api")
+@app.route("/api/jsontest", methods=['GET','POST'])
+def api_jsontest():
+    if request.method == "POST":
+        title = request.form["title"]
+        
+        response = jsonify(db.getJSONForMosaic(title))
+
+        response.headers.add('Access-Control-Allow-Origin', '*')
+        return response, 200
+
+@app.route("/api")
+@app.route("/api/jsontestall", methods=['GET','POST'])
+def api_jsontestall():
+    if request.method == "POST":
+
+        token = request.form['token']
+        user = findUserByToken(tokens, token)
+
+        response = jsonify(db.getAllMosaicsJSON(user))
+
+        response.headers.add('Access-Control-Allow-Origin', '*')
         return response, 200
 
 
