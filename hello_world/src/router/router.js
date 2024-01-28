@@ -4,6 +4,8 @@ import HomePage from "../views/HomePage.vue";
 import TutorialMode from "../views/TutorialMode.vue";
 import ImageEdit from "@/views/ImageEdit.vue";
 import Viewer from "@/views/Viewer.vue";
+import Filter from "@/views/Filter.vue";
+
 
 const routes = [
     {
@@ -40,6 +42,11 @@ const routes = [
         path: '/view',
         name: 'view',
         component: Viewer
+    },
+    {
+        path: '/filter',
+        name: 'filter',
+        component: Filter
     },
 ];
 

@@ -5,18 +5,8 @@ import uploadImage from "../views/ImageUpload.vue";
 import UploadImage from "@/views/ImageUpload.vue";
 import router from "../router/router";
 import axios from "axios";
+import Filter from "@/views/Filter.vue";
 
-
-/*function converDatatoTableType(data){
-  let result = [];
-  for (let i = 0; i < data.length; i++){
-    result.push({
-      title: i,
-      preview: data[i]
-    });
-  }
-  return result;
-}*/
 localStorage.setItem('token', '0');
 function converDatatoTableType(data){
   console.log(data);
@@ -63,11 +53,9 @@ const getAPIData = async () => {
   let api_data = await getAPIData();
   console.log(api_data)
 
-
-
 export default defineComponent({
     name: "App",
-    components: {UploadImage, TableLite},
+    components: {UploadImage, TableLite, Filter},
     setup() {
 
 
@@ -133,10 +121,6 @@ export default defineComponent({
           },
         });
 
-        /**
-         * Search Event
-         */
-
         const doSearch = (offset, limit, order, sort) => {
           table.isLoading = true;
           setTimeout(() => {
@@ -155,22 +139,28 @@ export default defineComponent({
           }, 600);
         };
 
+
+
         doSearch(0, api_data, "id", "asc");
         return {table, doSearch};
     },
   });
-
-
-
-
-
-
 </script>
 
 <template>
   <div class="left-bar">
   <p><img class="profile-pic" src="../../public/profile.jpg" alt="none">Jolyne Doe</p>
+    <div class="import-buttons" style="display: flex; flex-direction: column;">
+      <button class="btn" @click="">
+        Скачать данные профиля
+      </button>
+      <button class="btn" @click="">
+        Загрузить данные профиля
+      </button>
+      <router-link tag="button" class="view-button" to="/view">Посмотреть готовую мозаику</router-link>
+    </div>
   </div>
+  <Filter @applyFilter="handleFilter"></Filter>
   <table-lite
       :is-loading="table.isLoading"
       :columns="table.columns"
@@ -188,7 +178,7 @@ export default defineComponent({
 <style>
 .vtl-card{
   background: white;
-  width: 89vw;
+  width: 80vw;
   height: 100vh;
   color: #212529;
   border-collapse: collapse;
@@ -225,6 +215,26 @@ p{
   border-radius: 100%;
   border: solid 2px;
   margin-left: 5px;
+}
+.import-buttons {
+  width: 300px;
+  margin-left: 320px;
+}
+.import-buttons button{
+  display: block;
+  margin-bottom: 10px;
+}
+.btn{
+  display: inline-block;
+  text-align: center;
+  float: left;
+}
+.view-button{
+  background-color: white;
+  text-decoration-color: black;
+  text-align: center;
+  color: black;
+  font: inherit;
 }
 </style>
 
