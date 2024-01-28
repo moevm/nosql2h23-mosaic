@@ -6,5 +6,4 @@ RUN apt-get install -y python3
 COPY . /backend
 WORKDIR /backend
 RUN pip install -r requirements.txt
-EXPOSE 5001
 CMD python3 ./backend.py
