@@ -17,7 +17,7 @@ import axios from "axios";
   }
   return result;
 }*/
-
+localStorage.setItem('token', '0');
 function converDatatoTableType(data){
   console.log(data);
   let result = [];

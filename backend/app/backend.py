@@ -2,6 +2,7 @@ from flask import Flask, request, jsonify
 from neo4j import GraphDatabase
 import json
 from time import time
+from datetime import datetime
 from random import randint as rnd
 import img2mosaic
 
@@ -91,7 +92,7 @@ def generate_token():
 
 
 datas = ["pic1", "pic2", "pic3", "pic4","pic5"]
-tokens = []
+tokens = [('0','peter')]
 
 
 
@@ -172,7 +173,7 @@ def api_get_user_profile():
             
             for record in records: #'m' is a local variable in CYPHER neo4j query
                 picture_titles.append(record["m"].get("title"))
-                timestamps.append(record["m"].get("creation_timestamp"))
+                timestamps.append(datetime.fromtimestamp(record["m"].get("creation_timestamp")))
                 pictures.append(record["m"].get("picture"))
                 colors.append(record["m"].get("colors"))
                 blockSizes.append(record["m"].get("blockSize"))

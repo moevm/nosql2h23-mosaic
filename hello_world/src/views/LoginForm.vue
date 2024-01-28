@@ -7,6 +7,7 @@ import router from "../router/router";
 
 
 console.log("LOGIN FORM CALLED");
+localStorage.setItem('token', '0');
 const isLogin = ref(true);
 const logInError = ref(false);
 const signUpError = ref(false);
