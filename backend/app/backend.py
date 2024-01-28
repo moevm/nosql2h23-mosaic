@@ -43,17 +43,17 @@ class neo4j:
             else:
                 return False
     
-    def addNewMosaic(self, email_str, pic, title_str, blockSize, colors):
+    def addNewMosaic(self, email_str, pic, title_str, blockSize, colors, timest=time()):
         with self.driver.session() as session:
             print(">>>In neo4j::addNewMosaic")
             if len(list(session.run("MATCH (n:User) WHERE n.email = $email MATCH (m:Mosaic)-[:OWNED_BY]->(n) WHERE m.title = $title return m", email=email_str, title=title_str))):
                 return False
-            result = session.run("MATCH (u:User) WHERE u.email = $email CREATE (m:Mosaic {picture: $picture, title: $title, blockSize:$blockSize, colors:$colors, creation_timestamp: $timest}) CREATE (m)-[:OWNED_BY]->(u)", picture=pic, title=title_str, blockSize=blockSize, colors=colors, timest=time(), email=email_str)
+            result = session.run("MATCH (u:User) WHERE u.email = $email CREATE (m:Mosaic {picture: $picture, title: $title, blockSize:$blockSize, colors:$colors, creation_timestamp: $timest}) CREATE (m)-[:OWNED_BY]->(u)", picture=pic, title=title_str, blockSize=blockSize, colors=colors, timest=timest, email=email_str)
             return True
     
-    def constructMosaic(self, title, pixelSize, colors):
+    def constructMosaic(self, title, pixelSize, colors, email):
         with self.driver.session() as session:
-            result = list(session.run("MATCH (m:Mosaic) WHERE m.title = $title return m.picture", title=title))
+            result = list(session.run("MATCH (u:User) WHERE u.email = $email MATCH (m:Mosaic)-[:OWNED_BY]->(u) WHERE m.title = $title return m", email=email, title=title))
             imgBase64 = result[0].get("m.picture")
             index = imgBase64.find('base64,')
             imgBase64 = imgBase64[index+7:]
@@ -118,6 +118,26 @@ class neo4j:
                 all_data[f'Mosaic{i}'] = self.getJSONForMosaic(titles[i])
             
             return all_data
+
+    def loadAllMosaicsFromJSON(self, email, file):
+        with self.driver.session() as session:
+            data = json.loads(file)
+
+            for i in range(len(data)):
+
+                colors = data[f'Mosaic{i}']['colors']
+                blockSize = data[f'Mosaic{i}']['blockSize']
+                title = data[f'Mosaic{i}']['title']
+                creation_timestamp = data[f'Mosaic{i}']['creation_timestamp']
+                picture = data[f'Mosaic{i}']['picture']
+                tiles = data[f'Mosaic{i}']['tiles']
+
+                self.addNewMosaic(email, picture, title, blockSize, colors, creation_timestamp)
+            
+            for tile in tiles:
+                session.run("MATCH (u:User) WHERE u.email=$email MATCH (m:Mosaic)-[:OWNED_BY]->(u) WHERE m.title = $title CREATE (t:Tile {x: $x, y: $y, r: $r, g: $g, b: $b}) CREATE (t)-[:INCLUDED_BY]->(m)", email=email, title=title, x=tile['x'], y=tile['y'], r=tile['r'], g=tile['g'], b=tile['b'])
+
+
             
 
 
@@ -257,7 +277,7 @@ def api_add_picture():
             colors = 256
             blockSize = 10
             result = db.addNewMosaic(user, picture, title, blockSize, colors)
-            db.constructMosaic(title, blockSize, colors)
+            db.constructMosaic(title, blockSize, colors, user)
             
             if result:
                 response = jsonify("OK")
@@ -315,7 +335,7 @@ def api_signup():
         return response, 200
 
 
-@app.route("/api")
+"""@app.route("/api")
 @app.route("/api/jsontest", methods=['GET','POST'])
 def api_jsontest():
     if request.method == "POST":
@@ -324,10 +344,10 @@ def api_jsontest():
         response = jsonify(db.getJSONForMosaic(title))
 
         response.headers.add('Access-Control-Allow-Origin', '*')
-        return response, 200
+        return response, 200"""
 
 @app.route("/api")
-@app.route("/api/jsontestall", methods=['GET','POST'])
+@app.route("/api/exporter", methods=['GET','POST'])
 def api_jsontestall():
     if request.method == "POST":
 
