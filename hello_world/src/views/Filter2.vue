@@ -21,6 +21,7 @@ import Filter from "@/views/Filter.vue";
 import UploadImage from "@/views/ImageUpload.vue";
 import axios from "axios";
 
+
 export default {
   data() {
     return {
@@ -107,12 +108,15 @@ export default {
     this.table.rows = this.converDatatoTableType(this.api_data);
     this.table.filteredRows = this.table.rows;
   },
+
   components: {
     UploadImage,
     TableLite,
     Filter,
   },
+
 };
+
 </script>
 
 <style>
