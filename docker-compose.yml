@@ -3,13 +3,13 @@ services:
         build: ./
         restart: unless-stopped
         ports:
-         - 5173:5173
+         - 127.0.0.1:5173:5173
     
     back:
         build: ./backend/app
         restart: unless-stopped
         ports:
-         - 127.0.0.1:5001:5001
+         - 5001:5001
         tty: true
     
     db:
