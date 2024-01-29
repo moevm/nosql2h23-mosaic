@@ -8,16 +8,11 @@ services:
     back:
         build: ./backend/app
         restart: unless-stopped
-        ports:
-         - 5001:5001
         tty: true
     
     db:
         image: neo4j:5.16.0-bullseye
         restart: unless-stopped
-        ports:
-         - 7474:7474
-         - 7687:7687
         environment:
          - NEO4J_AUTH=neo4j/password
         volumes:

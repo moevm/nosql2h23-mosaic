@@ -359,8 +359,8 @@ def api_jsontest():
 
 @app.route("/api")
 @app.route("/api/exporter", methods=['GET','POST'])
-def api_jsontestall():
-    if request.method == "POST":
+def api_jsonexportall():
+    if request.method == "GET":
 
         token = request.form['token']
         user = findUserByToken(tokens, token)
@@ -369,6 +369,23 @@ def api_jsontestall():
 
         response.headers.add('Access-Control-Allow-Origin', '*')
         return response, 200
+
+@app.route("/api")
+@app.route("/api/importer", methods=['GET','POST'])
+def api_jsonimportall():
+    if request.method == "POST":
+
+        token = request.form['token']
+        user = findUserByToken(tokens, token)
+
+        file = request.form['file']
+        db.loadAllMosaicsFromJSON(user, file)
+        
+        response = jsonify("OK")
+        response.headers.add('Access-Control-Allow-Origin', '*')
+        
+        return response, 200
+
 
 
 if __name__ == "__main__":
