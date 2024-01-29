@@ -9,7 +9,7 @@ services:
         build: ./backend/app
         restart: unless-stopped
         ports:
-         - 5001:5001
+         - 127.0.0.1:5001:5001
         tty: true
     
     db:
@@ -18,4 +18,7 @@ services:
         environment:
          - NEO4J_AUTH=neo4j/password
         volumes:
-         - ./db/data:/data
+         - db-data:/data
+
+volumes:
+    db-data:

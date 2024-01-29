@@ -117,7 +117,7 @@ class neo4j:
             print(len(titles))
 
             for i in range(len(titles)):
-                all_data[f'Mosaic{i}'] = self.getJSONForMosaic(titles[i])
+                all_data[f'Mosaic{i}'] = self.getJSONForMosaic(titles[i],email)
             
             return all_data
 
@@ -156,6 +156,8 @@ while not db_started:
         print(f"Waiting for db to start: {round(time()-st, 2)} sec")
     
     sleep(0.2)
+
+db.addNewAccount("peter","12345678")
 
 def generate_token():
     symset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ01234567890_="
@@ -360,7 +362,7 @@ def api_jsontest():
 @app.route("/api")
 @app.route("/api/exporter", methods=['GET','POST'])
 def api_jsonexportall():
-    if request.method == "GET":
+    if request.method == "POST":
 
         token = request.form['token']
         user = findUserByToken(tokens, token)
@@ -379,6 +381,7 @@ def api_jsonimportall():
         user = findUserByToken(tokens, token)
 
         file = request.form['file']
+        print(file)
         db.loadAllMosaicsFromJSON(user, file)
         
         response = jsonify("OK")

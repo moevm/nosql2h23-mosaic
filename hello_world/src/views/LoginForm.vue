@@ -5,7 +5,7 @@ import axios from "axios";
 import router from "../router/router";
 // import {userAuthorized} from "../utils/utils";
 
-
+localStorage.setItem('token', '0');
 console.log("LOGIN FORM CALLED");
 localStorage.setItem('token', '0');
 const isLogin = ref(true);
@@ -65,8 +65,11 @@ const userSignUp = handleSubmit(async () => {
         email: email.value.value,
         password: password.value.value,
     }
+    let user_data = new FormData();
+    user_data.append('email', email.value.value);
+    user_data.append('password', password.value.value);
     await axios
-        .post(`http://localhost:5173/authenticate`, user)
+        .post(`http://localhost:5001/api/signup`, user_data)
         .catch(() => {
             signUpError.value = true
         })

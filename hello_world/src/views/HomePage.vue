@@ -10,8 +10,8 @@ import openUploadDialog from "@/views/ImageUpload.vue";
 import onFileChange from "@/views/ImageUpload.vue";
 import UploadJson from "@/views/JsonUpload.vue";
 
-
 localStorage.setItem('token', '0');
+
 function converDatatoTableType(data){
   console.log(data);
   let result = [];
@@ -54,12 +54,47 @@ const getAPIData = async () => {
     return api_data;
   }
 
+const getProfileFile = async () => {
+  const tokenLS = localStorage.getItem('token')
+  if(!tokenLS) return
+
+  let token = new FormData;
+  token.append('token', tokenLS);
+
+  let api_data = await axios
+      .post(`http://localhost:5001/api/exporter`, token)
+      .catch(() => {
+      })
+      .then(async (res) => {
+        console.log(res.data);
+        return res.data;
+      })
+
+  return api_data;
+}
+
+
   let api_data = await getAPIData();
   console.log(api_data)
 
 export default defineComponent({
     name: "App",
     components: {UploadJson, UploadImage, TableLite, Filter},
+    methods:{
+      async getJSONfile(){
+
+        console.log("in getJSONfile");
+        let alldata = await getProfileFile();
+        console.log(alldata);
+
+        let a = document.createElement("a")
+        a.href = URL.createObjectURL(
+            new Blob([JSON.stringify(alldata, null, 2)], {type:"application/json"})
+        )
+        a.download = "profile_data.json"
+        a.click()
+      }
+    },
     setup() {
 
 
@@ -146,14 +181,18 @@ export default defineComponent({
         doSearch(0, api_data, "id", "asc");
         return {table, doSearch};
     },
-  });
+  },
+  );
+
+
+
 </script>
 
 <template>
   <div class="left-bar">
   <p><img class="profile-pic" src="../../public/profile.jpg" alt="none">Jolyne Doe</p>
     <div class="import-buttons" style="display: flex; flex-direction: column;">
-      <button class="btn" @click="">
+      <button class="btn" @click="getJSONfile()" id="downloadAnchorElem">
         Скачать данные профиля
       </button>
       <UploadJson></UploadJson>
