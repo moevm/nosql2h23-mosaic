@@ -1,7 +1,7 @@
 <template>
   <div>
-    <input v-model="filterName" placeholder="Enter Name for Filter" />
-    <button @click="applyFilter">Apply Filter</button>
+    <input class="test" v-model="filterName" placeholder="Enter Name for Filter" />
+    <button class="test2" @click="applyFilter">Apply Filter</button>
   </div>
 </template>
 
@@ -26,3 +26,16 @@ export default {
   },
 };
 </script>
+
+<style>
+.test{
+margin-left: -1000px;
+position: absolute;
+z-index:2000;
+}
+.test2{
+  margin-left: -800px;
+  position: absolute;
+  z-index:2000;
+}
+</style>
